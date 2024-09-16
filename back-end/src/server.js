@@ -15,6 +15,11 @@ import path from 'path';
   app.use(express.json());
   app.use('/image', express.static(path.join(__dirname, '../assets')));
 
+  app.use(express.static(
+    path.resolve(__dirname,'../dist'),
+    {maxAge: '1y', etag: false},
+  ));
+
   // End point to get list of products
   app.get('/api/products', async (req, res) => {
     const products = await db.collection("products").find({}).toArray();
@@ -73,8 +78,14 @@ import path from 'path';
     res.json(populatedCart);
   });
 
-  app.listen(8000, () => {
-    console.log("Server is Listening on port 8000...");
+  app.get('*', (req,res) => {
+    res.sendFile(path.join(__dirname, '../dist/index.html'));
+  });
+
+  const port = process.env.PORT || 8000;
+
+  app.listen(port, () => {
+    console.log("Server is Listening on port "+port);
   });
 
 })();
